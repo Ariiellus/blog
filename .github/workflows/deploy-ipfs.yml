@@ -2,7 +2,12 @@ name: Deploy to IPFS
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -12,66 +17,63 @@ jobs:
       url: https://ariiellus.eth.limo
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Setup Node
-      uses: actions/setup-node@v6
-      with:
-        node-version: "20"
-        cache: "npm"
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
 
-    - name: Install dependencies
-      run: |
-        npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Build site
-      run: |
-        npm run build
+      - name: Build site
+        run: npm run build
 
-    - name: Deploy to IPFS
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        SSH_USER: ${{ secrets.SSH_USER }}
-        IPFS_SERVER_HOST: ${{ secrets.IPFS_SERVER_HOST }}
-        SSH_PORT: ${{ secrets.SSH_PORT }}
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        IPNS_KEY_NAME: ${{ secrets.IPNS_KEY_NAME }}
-      run: |
-        DEPLOY_ID=${GITHUB_SHA}
+      - name: Deploy to IPFS
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          IPFS_SERVER_HOST: ${{ secrets.IPFS_SERVER_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          IPNS_KEY_NAME: ${{ secrets.IPNS_KEY_NAME }}
+        run: |
+          set -euo pipefail
 
-        # Setup SSH
-        mkdir -p ~/.ssh
-        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-        chmod 600 ~/.ssh/id_ed25519
-        ssh-keyscan -p $SSH_PORT -H $IPFS_SERVER_HOST >> ~/.ssh/known_hosts
+          DEPLOY_ID="${GITHUB_SHA}"
+          RELEASE_PATH="$DEPLOY_PATH/releases/$DEPLOY_ID"
 
-        # Create release directory and copy dist contents to server
-        ssh -p $SSH_PORT $SSH_USER@$IPFS_SERVER_HOST "mkdir -p $DEPLOY_PATH/releases/$DEPLOY_ID"
-        scp -P $SSH_PORT -r dist/* $SSH_USER@$IPFS_SERVER_HOST:$DEPLOY_PATH/releases/$DEPLOY_ID/
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "$SSH_PORT" -H "$IPFS_SERVER_HOST" >> ~/.ssh/known_hosts
 
-        # Deploy to IPFS and verify IPNS points to the new CID.
-        ssh -p $SSH_PORT $SSH_USER@$IPFS_SERVER_HOST "
-          set -e
-          cd $DEPLOY_PATH/releases/$DEPLOY_ID
+          ssh -p "$SSH_PORT" "$SSH_USER@$IPFS_SERVER_HOST" "mkdir -p '$RELEASE_PATH'"
+          scp -P "$SSH_PORT" -r dist/* "$SSH_USER@$IPFS_SERVER_HOST:$RELEASE_PATH/"
 
-          HASH=\$(ipfs add -r . -Q --cid-version=1 --raw-leaves | tail -n 1)
-          TARGET=/ipfs/\$HASH
-          ipfs pin add \$HASH
+          ssh -p "$SSH_PORT" "$SSH_USER@$IPFS_SERVER_HOST" "
+            set -e
+            cd '$RELEASE_PATH'
 
-          IPNS_NAME=\$(ipfs key list -l | awk '\$2 == \"$IPNS_KEY_NAME\" {print \$1}')
-          if [ -z \"\$IPNS_NAME\" ]; then
-            echo 'IPNS key not found on server'
-            exit 1
-          fi
+            HASH=\$(ipfs add -r . -Q --cid-version=1 --raw-leaves | tail -n 1)
+            TARGET=/ipfs/\$HASH
+            IPNS_NAME=\$(ipfs key list -l | awk '\$2 == \"$IPNS_KEY_NAME\" {print \$1}')
 
-          ipfs name publish --key=$IPNS_KEY_NAME \$TARGET
+            if [ -z \"\$IPNS_NAME\" ]; then
+              echo 'IPNS key not found on server'
+              exit 1
+            fi
 
-          # Verify the local node has the correct record (DHT propagation can take minutes).
-          RESOLVED=\$(ipfs name resolve --offline /ipns/\$IPNS_NAME 2>/dev/null || true)
-          if [ \"\$RESOLVED\" = \"\$TARGET\" ]; then
+            ipfs pin add \$HASH
+            ipfs name publish --key='$IPNS_KEY_NAME' \$TARGET
+
+            RESOLVED=\$(ipfs name resolve --offline /ipns/\$IPNS_NAME 2>/dev/null || true)
+            if [ \"\$RESOLVED\" != \"\$TARGET\" ]; then
+              echo \"IPNS verification failed: expected \$TARGET, got '\$RESOLVED'\"
+              exit 1
+            fi
+
             echo \"Verified IPNS -> \$RESOLVED\"
-          else
-            echo \"IPNS verification failed: expected \$TARGET, got '\$RESOLVED'\"
-            exit 1
-          fi
-        "
+          "

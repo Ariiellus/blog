@@ -1,147 +1,33 @@
----
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { relativePath } from '../utils/paths';
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hello World</title>
+    <meta name="description" content="Hello world." />
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: sans-serif;
+      }
 
-const path = (target: string) => relativePath(Astro.url.pathname, target);
----
-<BaseLayout
-  title="Ariiellus - Low R case researcher"
-  description="Ethereum researcher, MEV analyst, and self-taught developer."
->
-  <meta slot="head" name="keywords" content="Ethereum, MEV, DeFi, cryptoeconomics, blockchain, security, node operator, Kairos Research, Solidity, smart contracts, Web3, developer" />
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f5f5f5;
+        color: #111;
+      }
 
-  <!-- Hello Section -->
-  <section class="section-border">
-    <h1>Hello, stranger</h1>
-    <div class="profile-grid">
-      <div class="profile-photo">
-        <img
-          src={path('/images/Profile.png')}
-          alt="Ariiellus Profile Picture"
-          class="profile-img"
-        />
-        <div class="social-links">
-          <a href="https://x.com/Ariiellus" target="_blank" rel="noopener noreferrer">
-            <img src={path('/images/twitter-light.png')} alt="X" class="social-icon" data-logo="twitter" />
-            <img src={path('/images/twitter-dark.png')} alt="X" class="social-icon" data-logo="twitter" />
-          </a>
-          <a href="https://t.me/Ariiellus" target="_blank" rel="noopener noreferrer">
-            <img src={path('/images/telegram-light.png')} alt="Telegram" class="social-icon" data-logo="telegram" />
-            <img src={path('/images/telegram-dark.png')} alt="Telegram" class="social-icon" data-logo="telegram" />
-          </a>
-          <a href="https://github.com/ariiellus" target="_blank" rel="noopener noreferrer">
-            <img src={path('/images/github-light.png')} alt="Github" class="social-icon" data-logo="github" />
-            <img src={path('/images/github-dark.png')} alt="Github" class="social-icon" data-logo="github" />
-          </a>
-        </div>
-      </div>
-
-      <div class="profile-bio">
-        <p>
-          <a
-            href="https://www.redbull.com/int-en/episodes/the-inspiration-inside-the-fourth-phase-s01-e01?rbup-media-time=136"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            this process we follow, this cycle we ride
-          </a>
-        </p>
-        <blockquote>
-          I'm Ariel!<br /><br />
-          Mechanical Engineer, self-taught developer. My goal in life is
-          simple, live a life I would love to remember. Spending the next 10
-          years building something to contribute to the human race.
-        </blockquote>
-        <p>
-          <a
-            href="https://lazyslowdown.com/ichigo-ichie-embracing-joy-in-transitions/"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-medium"
-          >
-            [一期一会]
-          </a>
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contributions Section -->
-  <section class="section-border">
-    <div class="section-header">
-      <h2>Contributions</h2>
-      <div class="gradient-bar"></div>
-    </div>
-
-    <h3>Kairos Research</h3>
-    <p>
-      I host a
-      <a href="https://x.com/Research_Kairos" target="_blank" rel="noopener noreferrer">weekly livestream</a>
-      covering the latests news and developments in the crypto space. Our
-      <a href="https://www.lupaweb3.kairosresearch.xyz/subscribe" target="_blank" rel="noopener noreferrer">newsletter</a>
-      has reached +500 subscribers during the first year. Occasionally,
-      <a href={path('/general/writings/')} rel="noopener noreferrer">I write blogs</a>
-      about MEV, DeFi and the Ethereum Roadmap.
-    </p>
-
-    <h3>Node Operator</h3>
-    <p>
-      I've been running nodes since Q4 '22. My experience includes running
-      several testnets like Holesky, Hoodi, Celestia or Aztec Network. Today
-      I own the Obol Techne Silver Credential (also I'm
-      <a href="https://www.tally.xyz/gov/obol/delegate/ariiellus.eth" target="_blank" rel="noopener noreferrer">delegate</a>
-      for Obol Collective), I'm running several validators for
-      <a href="https://shorturl.at/chstP" target="_blank" rel="noopener noreferrer">EtherFi</a>,
-      a community validator for
-      <a href="https://shorturl.at/vu3GW" target="_blank" rel="noopener noreferrer">Ethereum Mexico</a>,
-      a 0x02 Gnosis validator and a
-      <a href="https://app.mynearwallet.com/staking/kairosresearch.pool.near" target="_blank" rel="noopener noreferrer">Near Protocol node</a>
-      for Meta Pool.
-    </p>
-
-    <h3>Previous contributions</h3>
-    <ul>
-      <li>
-        <a href="https://x.com/eigentribe" target="_blank" rel="noopener noreferrer">EigenTribe Ambassador</a>
-      </li>
-      <li>
-        <a href="https://x.com/ethereum_mexico" target="_blank" rel="noopener noreferrer">Ethereum Mexico</a>
-        co-founder and Community Lead
-      </li>
-      <li>Cryptoversidad researcher</li>
-      <li>BanklessDAO translator</li>
-      <li>Token Engineering study group host</li>
-    </ul>
-  </section>
-
-  <!-- Interests Section -->
-  <section>
-    <h2>Interests</h2>
-    <p>Most of my time is spent in some of these topics:</p>
-
-    <div class="card-grid">
-      <div class="card">
-        <h3>Tech</h3>
-        <ul class="interest-list">
-          <li><span class="icon">🌳</span> MEV</li>
-          <li><span class="icon">🕵️</span> Security</li>
-          <li><span class="icon">🔬</span> Ethereum Research</li>
-          <li><span class="icon">📊</span> DeFi</li>
-          <li><span class="icon">📝</span> Cryptoeconomics</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <h3>Hobbies</h3>
-        <ul class="interest-list">
-          <li><span class="icon">♟️</span> Chess</li>
-          <li><span class="icon">🧠</span> Reading</li>
-          <li><span class="icon">🤸</span> Calisthenics</li>
-          <li><span class="icon">⛰️</span> Mountaineering</li>
-          <li><span class="icon">🏃</span> Running</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-</BaseLayout>
+      h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello World</h1>
+  </body>
+</html>
