@@ -1,33 +1,159 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Hello World</title>
-    <meta name="description" content="Hello world." />
-    <style>
-      :root {
-        color-scheme: light;
-        font-family: sans-serif;
-      }
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
 
-      body {
-        margin: 0;
-        min-height: 100vh;
-        display: grid;
-        place-items: center;
-        background: #f5f5f5;
-        color: #111;
-      }
+const contributions = [
+  {
+    title: 'Kairos Research',
+    body:
+      "I host a weekly livestream covering the latest developments in crypto. Our newsletter crossed 500 subscribers in its first year, and I also write about MEV, DeFi, and the Ethereum roadmap.",
+    links: [
+      { label: 'Livestream', href: 'https://x.com/Research_Kairos' },
+      { label: 'Newsletter', href: 'https://www.lupaweb3.kairosresearch.xyz/subscribe' },
+      { label: 'Writings', href: '/general/writings/' },
+    ],
+  },
+  {
+    title: 'Node Operator',
+    body:
+      "I've been running nodes since late 2022 across Ethereum and adjacent ecosystems, including Holesky, Hoodi, Celestia, and Aztec. Today that work includes EtherFi validators, a community validator for Ethereum Mexico, a 0x02 Gnosis validator, and a Near Protocol node for Meta Pool.",
+    links: [
+      { label: 'Obol delegate', href: 'https://www.tally.xyz/gov/obol/delegate/ariiellus.eth' },
+      { label: 'EtherFi', href: 'https://shorturl.at/chstP' },
+      { label: 'Ethereum Mexico', href: 'https://shorturl.at/vu3GW' },
+      { label: 'Near node', href: 'https://app.mynearwallet.com/staking/kairosresearch.pool.near' },
+    ],
+  },
+];
 
-      h1 {
-        margin: 0;
-        font-size: clamp(2.5rem, 8vw, 5rem);
-        font-weight: 700;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Hello World</h1>
-  </body>
-</html>
+const previousContributions = [
+  'EigenTribe Ambassador',
+  'Ethereum Mexico co-founder and community lead',
+  'Cryptoversidad researcher',
+  'BanklessDAO translator',
+  'Token Engineering study group host',
+];
+
+const interests = {
+  tech: ['MEV', 'Security', 'Ethereum research', 'DeFi', 'Cryptoeconomics'],
+  hobbies: ['Chess', 'Reading', 'Calisthenics', 'Mountaineering', 'Running'],
+};
+---
+<BaseLayout
+  title="Ariiellus | Research, Nodes, and Systems"
+  description="Ethereum researcher, node operator, and self-taught developer."
+>
+  <main class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+      </div>
+
+      <div class="profile-grid">
+        <aside class="profile-card">
+          <img src="/images/profile.png" alt="Portrait of Ariel" class="profile-image" />
+
+          <div class="hero-actions">
+            <a href="https://x.com/Ariiellus" target="_blank" rel="noreferrer" aria-label="X">
+              <img src="/images/twitter-dark.png" alt="X" class="social-icon" />
+            </a>
+            <a href="https://t.me/Ariiellus" target="_blank" rel="noreferrer" aria-label="Telegram">
+              <img src="/images/telegram-dark.png" alt="Telegram" class="social-icon" />
+            </a>
+            <a href="https://github.com/ariiellus" target="_blank" rel="noreferrer" aria-label="GitHub">
+              <img src="/images/github-dark.png" alt="GitHub" class="social-icon" />
+            </a>
+          </div>
+        </aside>
+
+        <div class="profile-bio">
+          <div class="hero-note">
+            <a
+              href="https://www.redbull.com/int-en/episodes/the-inspiration-inside-the-fourth-phase-s01-e01?rbup-media-time=136"
+              target="_blank"
+              rel="noreferrer"
+            >
+              this process we follow, this cycle we ride
+            </a>
+          </div>
+
+        <p class="lede">
+          I'm Ariel, a mechanical engineer turned self-taught developer. The work centers on Ethereum,
+          validator operations, MEV, and the long-term process of building a life worth remembering.
+        </p>
+
+          <blockquote>
+            My goal is simple: live a life I would love to remember, and spend the next decade building
+            something useful for the human race.
+          </blockquote>
+          <div class="hero-note">
+            <a
+            href="https://lazyslowdown.com/ichigo-ichie-embracing-joy-in-transitions/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            一期一会
+          </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <p>Selected work</p>
+        <h2>Contributions</h2>
+      </div>
+
+      <div class="contribution-grid">
+        {contributions.map((item) => (
+          <article class="contribution-card">
+            <h3>{item.title}</h3>
+            <p>{item.body}</p>
+            <div class="link-row">
+              {item.links.map((link) => (
+                <a href={link.href} target={link.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
+                  {link.label}
+                </a>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="timeline-card">
+        <h3>Previous contributions</h3>
+        <ul>
+          {previousContributions.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <p>What occupies most of the time</p>
+        <h2>Interests</h2>
+      </div>
+
+      <div class="interest-grid">
+        <article class="interest-card">
+          <h3>Tech</h3>
+          <ul>
+            {interests.tech.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="interest-card">
+          <h3>Hobbies</h3>
+          <ul>
+            {interests.hobbies.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
