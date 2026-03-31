@@ -211,6 +211,73 @@ img {
   font-size: clamp(2rem, 4vw, 3rem);
 }
 
+.page-title {
+  margin: 0.35rem 0 0;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.writing-intro {
+  max-width: 64ch;
+  margin-top: 1.5rem;
+}
+
+.writing-intro p {
+  margin: 0;
+  color: var(--muted-ink);
+  font-size: 1.05rem;
+  line-height: 1.85;
+}
+
+.writing-intro p + p {
+  margin-top: 1rem;
+}
+
+.writing-stack {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.writing-item {
+  padding: 1.4rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+}
+
+.writing-header {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.writing-item h3 {
+  margin: 0;
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+
+.writing-item p {
+  margin: 0;
+  color: var(--muted-ink);
+}
+
+.writing-meta {
+  font-family: "Avenir Next", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.writing-item .link-row {
+  margin-top: 1rem;
+}
+
 .contribution-grid,
 .interest-grid {
   display: grid;

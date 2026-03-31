@@ -1,4 +1,6 @@
 ---
+import { relativePath } from '../utils/paths';
+
 interface Props {
   title: string;
   description: string;
@@ -7,6 +9,7 @@ interface Props {
 const { title, description } = Astro.props;
 const siteUrl = Astro.site ?? new URL('https://ariiellus.eth.limo');
 const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const path = (target: string) => relativePath(Astro.url.pathname, target);
 ---
 <!doctype html>
 <html lang="en">
@@ -33,7 +36,7 @@ const canonicalUrl = new URL(Astro.url.pathname, siteUrl).toString();
     <meta name="twitter:description" content={description} />
     <meta name="twitter:creator" content="@Ariiellus" />
 
-    <link rel="stylesheet" href="/styles/site.css" />
+    <link rel="stylesheet" href={path('/styles/site.css')} />
   </head>
   <body>
     <slot />
