@@ -1,0 +1,175 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { relativePath } from '../../../utils/paths';
+
+const path = (target: string) => relativePath(Astro.url.pathname, target);
+
+const tutorials = [
+  {
+    title: 'Sablier Workshop',
+    href: 'https://x.com/i/broadcasts/1ynJOlYzXAyxR',
+    date: 'January 15, 2026',
+    description:
+      'A workshop on how to use Sablier to create streaming payment contracts.',
+    links: [
+      { label: 'Workshop repo', href: 'https://github.com/Ariiellus?tab=repositories' },
+      { label: 'Theoretical class', href: 'https://www.youtube.com/watch?v=yjfycfw1dDg' },
+      { label: 'Practical class', href: 'https://www.youtube.com/watch?v=_9jyQWaAJ7s' },
+    ],
+  },
+  {
+    title: 'Hello World AVS',
+    href: 'https://x.com/i/broadcasts/1ynJOlYzXAyxR',
+    date: 'June 4, 2025',
+    description:
+      'A comprehensive overview of how EigenLayer AVS works and how to build one.',
+    links: [{ label: 'GitHub repo', href: 'https://github.com/Ariiellus/Hello-World-AVS-es' }],
+  },
+  {
+    title: 'Collateralized Stablecoins',
+    href: 'https://github.com/Ariiellus/Stablecoins-Oracle-Workshop',
+    date: 'April 22, 2025',
+    description:
+      'Workshop for UNAM University on how to build a collateralized stablecoin with an oracle mechanism.',
+    links: [{ label: 'Code here', href: 'https://github.com/Ariiellus/Stablecoins-Oracle-Workshop' }],
+  },
+  {
+    title: 'Decentralized Website',
+    href: 'https://x.com/Ariiellus/status/1882458271333896602',
+    date: 'January 23, 2025',
+    description: 'Build your own decentralized website using ENS and IPFS.',
+    links: [],
+  },
+];
+
+const writings = [
+  {
+    title: 'Supporting Roman Storm',
+    href: path('/general/writings/Supporting-Roman/'),
+    date: 'January 9, 2026',
+    description: 'My support letter to Roman Storm, one of the founders of Tornado Cash.',
+  },
+  {
+    title: 'Introduction to Preconfirmations',
+    href: 'https://seedlatam.gitbook.io/seedlatam/avanzado-topicos/mev/preconfirmaciones-la-nueva-tarea-del-proposer',
+    date: 'April 21, 2025',
+    description:
+      'Preconfirmations provide earlier transaction guarantees in Ethereum while raising questions about MEV concentration and builder power.',
+  },
+  {
+    title: 'MEV Economics',
+    href: 'https://seedlatam.gitbook.io/seedlatam/avanzado-topicos/mev/rol-de-mev-en-la-economia',
+    date: 'April 14, 2025',
+    description:
+      'A look at how MEV shapes validator incentives, market efficiency, and the costs imposed on users.',
+  },
+  {
+    title: 'Introduction to MEV',
+    href: 'https://seedlatam.gitbook.io/seedlatam/avanzado-topicos/mev/introduccion-el-papel-de-mev-en-blockchain',
+    date: 'May 7, 2025',
+    description:
+      'An overview of maximum extractable value, why it exists, and why it matters for blockchain systems.',
+  },
+  {
+    title: 'Inclusion is the Key: FOCIL',
+    href: 'https://mirror.xyz/ariiellus.eth/b6EwdI7QONxRJ_AuEVHuOgRoG15saWl4ybxuqpQLqGU',
+    date: 'December 9, 2024',
+    description:
+      "FOCIL proposes inclusion lists as a way to improve Ethereum's censorship resistance and neutrality.",
+  },
+  {
+    title: 'State of MEV: A Comprehensive Overview',
+    href: 'https://drive.google.com/file/d/1rrHzU5jg_E1KnGDt_cm9UCJ_P9CaE_W8/view?usp=sharing',
+    date: 'May 2, 2024',
+    description:
+      'A broader survey of MEV, its market structure, and why access to it remains a core design problem.',
+  },
+  {
+    title: 'EigenLayer AVS: A Comprehensive Overview',
+    href: 'https://www.kairosresearch.xyz/insights/eigenlayer-avs-a-comprehensive-overview',
+    date: 'January 20, 2024',
+    description:
+      'A primer on actively validated services and the role they play in extending Ethereum security.',
+  },
+];
+---
+<BaseLayout
+  title="Writings | Ariiellus"
+  description="Tutorials and writings by Ariiellus on MEV, DeFi, and Ethereum."
+>
+  <main class="page-shell">
+    <section class="section-block">
+      <div class="section-heading">
+        <p>Notes, workshops, and essays</p>
+        <h1 class="page-title">Writings</h1>
+      </div>
+
+      <div class="writing-intro">
+        <p>
+          I started writing down my thoughts as a way to sharpen clarity across the areas that keep
+          pulling my attention. Some are workshops, some are essays, and some are attempts to explain
+          hard systems in simpler language.
+        </p>
+        <p>
+          You can also find the more personal side in
+          <a href={path('/general/essays/')}> essays</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <p>Hands-on material</p>
+        <h2>Tutorials</h2>
+      </div>
+
+      <div class="writing-stack">
+        {tutorials.map((item) => (
+          <article class="writing-item">
+            <div class="writing-header">
+              <h3>
+                <a href={item.href} target="_blank" rel="noreferrer">{item.title}</a>
+              </h3>
+              <p class="writing-meta">{item.date}</p>
+            </div>
+            <p>{item.description}</p>
+            {item.links.length > 0 && (
+              <div class="link-row">
+                {item.links.map((link) => (
+                  <a href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+                ))}
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <p>Research and commentary</p>
+        <h2>Writings</h2>
+      </div>
+
+      <div class="writing-stack">
+        {writings.map((item) => (
+          <article class="writing-item">
+            <div class="writing-header">
+              <h3>
+                <a
+                  href={item.href}
+                  target={item.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noreferrer"
+                >
+                  {item.title}
+                </a>
+              </h3>
+              <p class="writing-meta">{item.date}</p>
+            </div>
+            <p>{item.description}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+</BaseLayout>

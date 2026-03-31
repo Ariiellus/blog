@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { relativePath } from '../utils/paths';
+
+const path = (target: string) => relativePath(Astro.url.pathname, target);
 
 const contributions = [
   {
@@ -9,7 +12,7 @@ const contributions = [
     links: [
       { label: 'Livestream', href: 'https://x.com/Research_Kairos' },
       { label: 'Newsletter', href: 'https://www.lupaweb3.kairosresearch.xyz/subscribe' },
-      { label: 'Writings', href: '/general/writings/' },
+      { label: 'Writings', href: path('/general/writings/') },
     ],
   },
   {
@@ -44,22 +47,19 @@ const interests = {
 >
   <main class="page-shell">
     <section class="hero">
-      <div class="hero-copy">
-      </div>
-
       <div class="profile-grid">
         <aside class="profile-card">
-          <img src="/images/profile.png" alt="Portrait of Ariel" class="profile-image" />
+          <img src={path('/images/profile.png')} alt="Portrait of Ariel" class="profile-image" />
 
           <div class="hero-actions">
             <a href="https://x.com/Ariiellus" target="_blank" rel="noreferrer" aria-label="X">
-              <img src="/images/twitter-dark.png" alt="X" class="social-icon" />
+              <img src={path('/images/twitter-dark.png')} alt="X" class="social-icon" />
             </a>
             <a href="https://t.me/Ariiellus" target="_blank" rel="noreferrer" aria-label="Telegram">
-              <img src="/images/telegram-dark.png" alt="Telegram" class="social-icon" />
+              <img src={path('/images/telegram-dark.png')} alt="Telegram" class="social-icon" />
             </a>
             <a href="https://github.com/ariiellus" target="_blank" rel="noreferrer" aria-label="GitHub">
-              <img src="/images/github-dark.png" alt="GitHub" class="social-icon" />
+              <img src={path('/images/github-dark.png')} alt="GitHub" class="social-icon" />
             </a>
           </div>
         </aside>
@@ -75,10 +75,10 @@ const interests = {
             </a>
           </div>
 
-        <p class="lede">
-          I'm Ariel, a mechanical engineer turned self-taught developer. The work centers on Ethereum,
-          validator operations, MEV, and the long-term process of building a life worth remembering.
-        </p>
+          <p class="lede">
+            I'm Ariel, a mechanical engineer turned self-taught developer. The work centers on Ethereum,
+            validator operations, MEV, and the long-term process of building a life worth remembering.
+          </p>
 
           <blockquote>
             My goal is simple: live a life I would love to remember, and spend the next decade building
@@ -86,12 +86,12 @@ const interests = {
           </blockquote>
           <div class="hero-note">
             <a
-            href="https://lazyslowdown.com/ichigo-ichie-embracing-joy-in-transitions/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            一期一会
-          </a>
+              href="https://lazyslowdown.com/ichigo-ichie-embracing-joy-in-transitions/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              一期一会
+            </a>
           </div>
         </div>
       </div>
