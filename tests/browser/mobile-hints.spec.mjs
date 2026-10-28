@@ -10,7 +10,7 @@ async function openTouchPage(browser, weather = "sunny", options = {}) {
   });
   const page = await context.newPage();
   await page.goto(`/?weather=${weather}`);
-  await expect(page.locator(".scene-layer.is-visible")).toHaveAttribute("data-scene-renderer", "vector");
+  await expect(page.locator(".scene-layer.is-visible")).toHaveAttribute("data-scene-renderer", "preview");
   return { context, page };
 }
 

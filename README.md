@@ -15,12 +15,11 @@ website/
 │   ├── styles.css               # Composition and motion
 │   └── scene-hotspots.css       # Generated from shared landmark layouts
 ├── js/
-│   ├── main.js                  # Weather, dialogs, hotspots, audio, and parallax
+│   ├── main.js                  # Weather, dialogs, hotspots, and parallax
 │   ├── weather-scenes.js        # Initial-paint and runtime scene registry
-│   ├── scene-cache.js           # Draw compiled vector contours once, cache surfaces
+│   ├── scene-cache.js           # Cache lossless previews, with vector fallback
 │   ├── mountain-renderer.js     # WebGL liquid-hover renderer
-│   ├── tab-attention.js         # Favicon cue after 10 seconds in another tab
-│   └── weather-music.js         # Web Audio chiptune arrangements
+│   └── tab-attention.js         # Favicon cue after 10 seconds in another tab
 ├── index.html                   # Scene, panel templates, and content
 ├── scripts/scenes/              # Layouts, editing regions, and trace settings
 ├── scripts/build-scenes.mjs     # Compile contours, previews, and hotspot CSS
@@ -34,7 +33,7 @@ website/
 
 ## Run locally
 
-Use a static HTTP server for vector rendering. Opening `index.html` directly uses the generated preview fallback. With Node installed:
+Use a static HTTP server for browser testing and compiled-vector fallbacks. The normal runtime uses generated lossless WebP previews, including when opening `index.html` directly. With Node installed:
 
 ```sh
 npm run dev
@@ -57,7 +56,7 @@ The `#world` element can later become a PixiJS or Three.js mount point. Its hots
 
 All three backgrounds (sunny, rainy, snowy) are high-fidelity contour traces of their original PNGs, preserving composition, lighting, lettering, and fine texture rather than replacing them with simplified shapes. Each has separate desktop and mobile vectors. Their SVGs contain genuine editable paths, no `<image>` elements or encoded bitmap data. Whole-scene and regional native-size comparisons are recorded in `docs/fidelity/`.
 
-Matching this illustration's detail requires large vector files. They are not a download-size optimization. The normal runtime downloads compressed `.scene.json.gz` drawing instructions, builds `Path2D` contours, and renders them once at the original resolution in small batches. No large SVG document is mounted or rendered by the browser. Camera movement, crossfades, and WebGL reuse cached surfaces/textures without rebuilding geometry. Lossless WebP previews generated from the same SVG source provide immediate first paint, no-JavaScript support, and graceful fallbacks. Source vectors do not invent detail beyond the original PNG resolution.
+Matching this illustration's detail requires large vector source files, but visitors normally download only the lossless WebP previews generated from those SVGs. Each preview is decoded once into a cached surface; camera movement, crossfades, and WebGL reuse the surfaces/textures without rebuilding geometry. Compressed `.scene.json.gz` instructions and batched `Path2D` rendering remain a fallback if a preview is unavailable. No large SVG document is mounted or rendered by the browser. Only the selected weather and composition are requested at startup. The upcoming weather is chosen in advance and prepared during idle time about 15 seconds before its 30-second transition, rather than loading every weather immediately. Breakpoint changes cancel obsolete pending preloads and prepare the matching composition. A separate sunny picture preserves the no-JavaScript fallback without causing unused startup downloads when JavaScript is enabled. Source vectors remain independently editable and do not invent detail beyond the original PNG resolution.
 
 - Edit geometry and `fill` colors directly in `assets/weather/*.svg`, using code or an SVG editor. Named groups such as `layer-refuge`, `layer-shop`, and `layer-base` divide the artwork into editing regions. Each region includes surrounding scenery; it is not a separately rigged object, and moving it may require filling the exposed background.
 - Edit landmark positions in `scripts/scenes/layouts.mjs`.
@@ -67,7 +66,7 @@ Matching this illustration's detail requires large vector files. They are not a 
 
 `npm test` checks verified vector hashes, SVG references, editing regions, and generated hit regions. `npm run test:fidelity` independently re-renders the SVGs against the original PNGs (global SSIM ≥ 0.985, each landmark region ≥ 0.97). Intentional artwork edits will change these reference checks and should be reviewed explicitly. `npm run test:browser` checks real desktop/mobile clicks, browser-rendered PNG comparisons, touch input, resizing, cache reuse, WebGL loss, no-JavaScript fallback, and weather timing. Tests use local Brave when available; otherwise install Chromium with `npx playwright install chromium` (or set `CHROMIUM_EXECUTABLE`). Run `npm install` first for development tools; the deployed site has no runtime dependencies.
 
-On fine-pointer desktop devices, `js/mountain-renderer.js` progressively replaces the scene layer with a WebGL canvas. It applies a localized, time-varying displacement inside the hovered landmark's exact responsive bounds. The invisible zones cover the combined base camp, sun/night star, trail map, training area, summit, Shangri-La refuge, gear shop, and news mailbox. The mailbox contains vlogs and blog entries; the trail map contains routes and objectives. Touch devices, reduced-motion users, unsupported GPUs, and lost WebGL contexts continue using the cached code-rendered canvas, or its generated preview if vector rendering is unavailable.
+On fine-pointer desktop devices, `js/mountain-renderer.js` progressively replaces the scene layer with a WebGL canvas. It applies a localized, time-varying displacement inside the hovered landmark's exact responsive bounds. The invisible zones cover the combined base camp, sun/night star, trail map, training area, summit, Shangri-La refuge, gear shop, and news mailbox. The mailbox contains vlogs and blog entries; the trail map contains routes and objectives. Touch devices, reduced-motion users, unsupported GPUs, and lost WebGL contexts continue using the cached preview canvas or the original picture fallback.
 
 Base Camp, Northstar, Shangri-La Refuge, Trail Map, Gear Shop, and News Mailbox
 use a focused-view transition. The complete `.world` layer scales around the

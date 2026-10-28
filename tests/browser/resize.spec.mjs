@@ -22,7 +22,7 @@ for (const weather of ["sunny", "rainy", "snowy"]) {
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`/?weather=${weather}`);
-    await expect(page.locator(".scene-layer.is-visible")).toHaveAttribute("data-scene-renderer", "vector");
+    await expect(page.locator(".scene-layer.is-visible")).toHaveAttribute("data-scene-renderer", "preview");
     await page.locator('[data-panel="gym"]').click();
     await expect(page.locator("#mountain-panel")).toBeVisible();
 

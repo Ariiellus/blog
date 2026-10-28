@@ -45,6 +45,14 @@
 
         window.__MOUNTAIN_INITIAL_WEATHER = initialWeather;
         document.documentElement.dataset.initialWeather = initialWeather;
+        const orientation = window.matchMedia("(max-width: 700px), (orientation: portrait)").matches ? "vertical" : "horizontal";
+        const preload = document.createElement("link");
+        preload.rel = "preload";
+        preload.as = "image";
+        preload.type = "image/webp";
+        preload.href = window.MOUNTAIN_WEATHER_SCENES[initialWeather].preview[orientation];
+        preload.fetchPriority = "high";
+        document.head.append(preload);
 
         try {
           sessionStorage.setItem("mountain-weather", initialWeather);
@@ -56,10 +64,9 @@
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="css/styles.css?v=43" />
     <link rel="stylesheet" href="css/scene-hotspots.css?v=3" />
-    <script src="js/scene-cache.js?v=2" defer></script>
+    <script src="js/scene-cache.js?v=3" defer></script>
     <script src="js/mountain-renderer.js?v=10" defer></script>
-    <script src="js/weather-music.js?v=3" defer></script>
-    <script src="js/main.js?v=31" defer></script>
+    <script src="js/main.js?v=33" defer></script>
     <script src="js/tab-attention.js?v=7" defer></script>
   </head>
 
@@ -69,8 +76,8 @@
            clickable point attached to its landmark while the scene is cropped. -->
       <div class="world" id="world">
         <picture class="scene-layer is-visible" data-scene-layer="0">
-          <source media="(max-width: 700px), (orientation: portrait)" srcset="assets/weather/sunny-vertical.webp" />
-          <img src="assets/weather/sunny-horizontal.webp" alt="" fetchpriority="high" />
+          <source media="(max-width: 700px), (orientation: portrait)" />
+          <img alt="" fetchpriority="high" />
         </picture>
         <script>
           // Replace the fallback source synchronously, before first paint, with
@@ -78,16 +85,30 @@
           (() => {
             const weather = window.__MOUNTAIN_INITIAL_WEATHER || "sunny";
             const layer = document.currentScript.previousElementSibling;
-            const assets = window.MOUNTAIN_WEATHER_SCENES[weather];
-            layer.querySelector("source").srcset = assets.preview.vertical;
-            layer.querySelector("img").src = assets.preview.horizontal;
-            document.querySelector(".experience").dataset.weather = weather;
+            const assets = window.MOUNTAIN_WEATHER_SCENES?.[weather]?.preview || {
+              horizontal: "assets/weather/sunny-horizontal.webp",
+              vertical: "assets/weather/sunny-vertical.webp",
+            };
+            layer.querySelector("source").srcset = assets.vertical;
+            layer.querySelector("img").src = assets.horizontal;
+            const experience = document.querySelector(".experience");
+            experience.dataset.weather = weather;
+            const orientation = window.matchMedia("(max-width: 700px), (orientation: portrait)").matches ? "vertical" : "horizontal";
+            const source = new URL(assets[orientation], document.baseURI);
+            experience.style.setProperty("--scene-backdrop", `url("${source.href}")`);
           })();
         </script>
         <picture class="scene-layer" data-scene-layer="1">
-          <source media="(max-width: 700px), (orientation: portrait)" srcset="assets/weather/sunny-vertical.webp" />
-          <img src="assets/weather/sunny-horizontal.webp" alt="" />
+          <source media="(max-width: 700px), (orientation: portrait)" />
+          <img alt="" />
         </picture>
+        <noscript>
+          <style>[data-scene-layer] { display: none; }</style>
+          <picture class="scene-layer is-visible">
+            <source media="(max-width: 700px), (orientation: portrait)" srcset="assets/weather/sunny-vertical.webp" />
+            <img src="assets/weather/sunny-horizontal.webp" alt="" fetchpriority="high" />
+          </picture>
+        </noscript>
         <!-- WebGL progressively replaces the pictures on supported desktops.
              The pictures remain underneath as a no-JS/WebGL fallback. -->
         <canvas class="mountain-canvas" id="mountain-canvas" aria-hidden="true"></canvas>
@@ -329,7 +350,7 @@
               <rect class="radar-label-hit" x="204" y="8" width="72" height="48" rx="4"></rect>
               <text class="radar-label" x="240" y="30">Work <tspan x="240" dy="16">4 / 5</tspan></text>
             </g>
-            <g class="radar-area radar-area--playing" role="button" tabindex="0" aria-pressed="false" aria-label="Playing, 2 out of 5" data-radar-area="playing">
+            <g class="radar-area radar-area--gaming" role="button" tabindex="0" aria-pressed="false" aria-label="Gaming, 2 out of 5" data-radar-area="gaming">
               <path class="radar-hit" d="M 240 210 L 310.79 39.1 A 185 185 0 0 1 410.9 139.21 Z"></path>
               <circle class="radar-point" cx="276.2" cy="173.8" r="6"></circle>
               <rect class="radar-label-hit" x="337" y="60" width="82" height="48" rx="4"></rect>

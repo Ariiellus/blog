@@ -1,4 +1,4 @@
-/** Draw complex SVG source once at its original resolution. Camera movement,
+/** Cache generated previews at their original resolution. Camera movement,
  * hover effects and crossfades then reuse a cached surface, not SVG DOM paths.
  * All six source SVGs remain independently editable; no bitmap is embedded.
  */
@@ -60,12 +60,11 @@
   function get(source) {
     if (surfaces.has(source)) return surfaces.get(source);
     const promise = (async () => {
-      if (source.endsWith(".svg") && window.Path2D && window.DecompressionStream) {
-        try { return await drawVector(source); } catch (error) {
-          console.warn("Vector scene unavailable; using its generated preview.", error);
-        }
+      try { return await preview(source); } catch (error) {
+        if (!source.endsWith(".svg") || !window.Path2D || !window.DecompressionStream) throw error;
+        console.warn("Scene preview unavailable; using its compiled vector.", error);
+        return drawVector(source);
       }
-      return preview(source);
     })().catch(error => {
       surfaces.delete(source);
       throw error;

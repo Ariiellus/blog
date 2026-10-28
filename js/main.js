@@ -1,6 +1,7 @@
 const WEATHER_IMAGES = window.MOUNTAIN_WEATHER_SCENES;
 
 const WEATHER_CHANGE_INTERVAL = 30 * 1000;
+const WEATHER_PRELOAD_LEAD_TIME = WEATHER_CHANGE_INTERVAL / 2;
 const weatherNames = Object.keys(WEATHER_IMAGES);
 
 const experience = document.querySelector(".experience");
@@ -23,6 +24,10 @@ const mobileScene = window.matchMedia("(max-width: 700px), (orientation: portrai
 let visibleLayerIndex = 0;
 let currentWeather = window.__MOUNTAIN_INITIAL_WEATHER || "sunny";
 let weatherRequestId = 0;
+let nextWeather = null;
+let nextWeatherChangeAt = 0;
+let weatherPreloadTimer;
+let weatherPreloadIdle = null;
 let closingTimer;
 let focusResetTimer;
 let mountainRenderer = null;
@@ -129,7 +134,7 @@ async function changeWeather(weather) {
     experience.dataset.weather = weather;
     updateSceneBackdrop(weather);
     mountainRenderer?.transitionTo(weatherAsset(weather));
-    weatherMusic.setMood(weather, { bars: 4 });
+    queueNextWeather();
 
     weatherAnnouncement.textContent = `${weather[0].toUpperCase()}${weather.slice(1)} weather is now active.`;
   };
@@ -159,27 +164,6 @@ updateSceneBackdrop(initialWeather);
 window.MountainSceneCache.paint(sceneLayers[visibleLayerIndex], weatherAsset(initialWeather), () => currentWeather === initialWeather && weatherRequestId === 0).catch(() => {
   // The original <picture> remains a working no-canvas fallback.
 });
-
-/**
- * AUDIO
- * Start immediately and retry after full page load wherever browser autoplay
- * policy permits it. The first click anywhere resumes a suspended context
- * before the clicked landmark or link finishes handling its own interaction.
- */
-const weatherMusic = window.createWeatherAudio({
-  getMood: () => currentWeather,
-});
-
-function startWeatherMusic() {
-  weatherMusic.start().catch(() => {
-    // A later user interaction can retry a browser-blocked AudioContext.
-  });
-}
-
-weatherMusic.setMuted(false);
-startWeatherMusic();
-window.addEventListener("load", startWeatherMusic, { once: true });
-document.addEventListener("click", startWeatherMusic, { once: true, capture: true });
 
 /**
  * WEBGL LIQUID HOVER
@@ -212,8 +196,15 @@ if (
 
 // After 30 seconds, and every 30 seconds thereafter, the mountain changes.
 window.MountainSceneCache.get(weatherAsset(initialWeather)).finally(() => {
+  nextWeatherChangeAt = performance.now() + WEATHER_CHANGE_INTERVAL;
+  queueNextWeather();
   window.setInterval(() => {
-    changeWeather(getRandomWeather(currentWeather));
+    const weather = nextWeather || getRandomWeather(currentWeather);
+    nextWeatherChangeAt = performance.now() + WEATHER_CHANGE_INTERVAL;
+    changeWeather(weather).finally(() => {
+      if (nextWeather === weather) queueNextWeather();
+      else warmWeatherScenes();
+    });
   }, WEATHER_CHANGE_INTERVAL);
 }).catch(() => {});
 
@@ -286,20 +277,21 @@ function initializeRadarChart() {
   };
 
   areas.forEach((area) => {
-    area.addEventListener("pointerenter", () => showImmediately(area));
-    area.addEventListener("pointerleave", restoreSelectedAreaAfterDelay);
-    area.addEventListener("focus", () => showImmediately(area));
-    area.addEventListener("blur", restoreSelectedAreaAfterDelay);
-    area.addEventListener("click", () => {
+    const toggleSelection = () => {
       window.clearTimeout(hoverOutTimer);
       selectedArea = selectedArea === area ? null : area;
       updatePressedStates();
       showArea(selectedArea, 300);
-    });
+    };
+    area.addEventListener("pointerenter", () => showImmediately(area));
+    area.addEventListener("pointerleave", restoreSelectedAreaAfterDelay);
+    area.addEventListener("focus", () => showImmediately(area));
+    area.addEventListener("blur", restoreSelectedAreaAfterDelay);
+    area.addEventListener("click", toggleSelection);
     area.addEventListener("keydown", (event) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
-      area.click();
+      toggleSelection();
     });
   });
 
@@ -497,25 +489,39 @@ if (document.querySelector(`#panel-${initialPanel}`)) {
   window.addEventListener("load", () => openPanel(initialPanel), { once: true });
 }
 
-// Prepare only the current composition, sequentially, outside the frame loop.
+// Prepare only the upcoming weather in the current composition after startup.
 // Later transitions reuse decoded surfaces and already-uploaded GPU textures.
-async function warmWeatherScenes() {
-  const orientation = mobileScene.matches ? "vertical" : "horizontal";
-  for (const assets of Object.values(WEATHER_IMAGES)) {
-    if ((mobileScene.matches ? "vertical" : "horizontal") !== orientation) return;
+function warmWeatherScenes() {
+  window.clearTimeout(weatherPreloadTimer);
+  if (weatherPreloadIdle !== null) window.cancelIdleCallback?.(weatherPreloadIdle);
+  weatherPreloadIdle = null;
+  if (!nextWeather || !nextWeatherChangeAt) return;
+
+  const weather = nextWeather;
+  const source = weatherAsset(weather);
+  const preload = async () => {
+    weatherPreloadIdle = null;
+    if (weather !== nextWeather || source !== weatherAsset(weather)) return;
     try {
-      await window.MountainSceneCache.get(assets[orientation]);
-      if (mountainRenderer?.ready) await mountainRenderer.preload(assets[orientation]);
+      await window.MountainSceneCache.get(source);
+      if (weather === nextWeather && source === weatherAsset(weather) && mountainRenderer?.ready) {
+        await mountainRenderer.preload(source);
+      }
     } catch (_) {
       // A missing preload must not blank or stop the current scene.
     }
-    await new Promise(resolve => window.setTimeout(resolve, 0));
-  }
+  };
+  const delay = Math.max(0, nextWeatherChangeAt - performance.now() - WEATHER_PRELOAD_LEAD_TIME);
+  weatherPreloadTimer = window.setTimeout(() => {
+    if (typeof window.requestIdleCallback === "function") {
+      weatherPreloadIdle = window.requestIdleCallback(preload, { timeout: 1000 });
+    } else {
+      preload();
+    }
+  }, delay);
 }
-window.addEventListener("load", () => {
-  if ("requestIdleCallback" in window) {
-    window.requestIdleCallback(warmWeatherScenes);
-  } else {
-    window.setTimeout(warmWeatherScenes, 600);
-  }
-});
+
+function queueNextWeather() {
+  nextWeather = getRandomWeather(currentWeather);
+  warmWeatherScenes();
+}

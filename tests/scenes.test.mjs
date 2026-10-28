@@ -46,7 +46,7 @@ test("responsive scene selection agrees across pictures, CSS, and runtime", asyn
   const query = main.match(/const mobileScene = window.matchMedia\("([^"]+)"\)/)?.[1];
   assert.ok(query, "Missing responsive scene query");
   const pictures = [...html.matchAll(/<source\b[^>]*media="([^"]+)"/g)];
-  assert.equal(pictures.length, 2);
+  assert.equal(pictures.length, 3);
   for (const picture of pictures) assert.equal(picture[1], query);
   assert.ok(styles.includes(`@media ${query} {`));
   assert.ok(hotspotStyles().includes(`@media ${query} {`));
